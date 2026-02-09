@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             version="3.0">
+    <persistence-unit name="hitResultsPU" transaction-type="JTA">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <jta-data-source>java:/H2DS</jta-data-source>  <!-- ИЗМЕНИТЕ ЗДЕСЬ -->
+        <class>ru.itmo.web.model.HitResult</class>
+
+        <properties>
+            <!-- Включите автоматическое создание таблиц -->
+            <property name="jakarta.persistence.schema-generation.database.action"
+                      value="create"/>
+
+            <!-- ИЛИ -->
+            <!-- <property name="eclipselink.ddl-generation" value="create-tables"/> -->
+
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.logging.level.sql" value="FINE"/>
+            <property name="eclipselink.target-database"
+                      value="org.eclipse.persistence.platform.database.H2Platform"/>
+        </properties>
+    </persistence-unit>
+</persistence>

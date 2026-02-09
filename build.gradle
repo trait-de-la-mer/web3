@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+    id 'war'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Jakarta EE API (provided by WildFly)
+    providedCompile 'jakarta.platform:jakarta.jakartaee-web-api:10.0.0'
+
+    // EclipseLink (ORM)
+    implementation 'org.eclipse.persistence:eclipselink:4.0.1'
+
+    // H2 Database
+    implementation 'com.h2database:h2:2.2.224'
+
+    // PrimeFaces для Jakarta EE
+    implementation 'org.primefaces:primefaces:12.0.0:jakarta'
+
+    // Jakarta EE API (provided by WildFly)
+    providedCompile 'jakarta.platform:jakarta.jakartaee-web-api:10.0.0'
+
+    // Добавьте EJB спецификацию
+    providedCompile 'jakarta.ejb:jakarta.ejb-api:4.0.1'
+
+    // EclipseLink (ORM)
+    implementation 'org.eclipse.persistence:eclipselink:4.0.1'
+
+    // H2 Database
+    implementation 'com.h2database:h2:2.2.224'
+
+    // PrimeFaces для Jakarta EE
+    implementation 'org.primefaces:primefaces:12.0.0:jakarta'
+}
+
+// Настройка ресурсов (этого достаточно!)
+sourceSets {
+    main {
+        resources {
+            srcDirs = ['src/main/resources']
+            include '**/*'
+        }
+    }
+}
+
+// УБРАЛИ явное копирование из секции war!
+war {
+    archiveBaseName = 'notweb3testlab'
+    archiveVersion = '1.0-SNAPSHOT'
+}

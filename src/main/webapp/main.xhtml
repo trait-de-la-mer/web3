@@ -1,0 +1,316 @@
+    <!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:h="http://xmlns.jcp.org/jsf/html"
+          xmlns:f="http://xmlns.jcp.org/jsf/core"
+          xmlns:p="http://primefaces.org/ui"
+          xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Проверка попадания точки</title>
+        <style>
+            html {
+    background-color: #4a4a4a;
+    color: white;
+}
+
+#main {
+  table-layout: auto;
+  width: 100%;
+}
+
+td {
+    text-align: center;
+}
+
+.forChoose {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+/* Спиннер */
+.forChoose.ui-spinner .ui-spinner-input {
+    background: gray !important;
+    color: white !important;
+    border: 2px solid green !important;
+    border-radius: 8px !important;
+}
+
+.forChoose.ui-spinner .ui-spinner-button {
+    background: gray !important;
+    color: white !important;
+    border-radius: 0 8px 8px 0 !important;
+}
+
+/* Поле ввода */
+.forChoose.ui-inputtext {
+    background: gray !important;
+    color: white !important;
+    border: 2px solid green !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+}
+
+ /* Выпадающий список */
+.forChoose.ui-selectonemenu .ui-selectonemenu-label {
+    background: gray !important;
+    color: gray !important;
+    border: 2px solid green !important;
+    border-radius: 8px 0 0 8px !important;
+    padding: 8px !important;
+}
+
+.forChoose.ui-selectonemenu .ui-selectonemenu-trigger {
+    background: gray !important;
+    color: gray !important;
+    border-radius: 0 8px 8px 0 !important;
+}
+
+
+        </style>
+    </h:head>
+    <h:body>
+        <table id="main">
+            <tr>
+                <td>
+                    <h:graphicImage library="images" name="НормВазгВыр.png" height="100" width="100"/>
+                </td>
+                <td class="header">Васильев Александр, P3214, 465355 вариант</td>
+                <td>
+                    <h:outputLink value="https://github.com/trait-de-la-mer" target="_blank">
+                        <h:outputText value="gitHub"/>
+                    </h:outputLink>
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2"></td>
+                <td>
+                    <canvas id="plotCanvas" width="450" height="450"></canvas>
+                </td>
+                <td rowspan="2">
+                    <h:dataTable id="resultTable" value="#{plotBean.resultModel}" var="res">
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="X"/>
+                            </f:facet>
+                            <h:outputText value="#{res.x}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="Y"/>
+                            </f:facet>
+                            <h:outputText value="#{res.y}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="R"/>
+                            </f:facet>
+                            <h:outputText value="#{res.r}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="Результат"/>
+                            </f:facet>
+                            <h:outputText value="#{res.hit ? 'Да' : 'Нет'}"/>
+                        </h:column>
+                    </h:dataTable>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h:form>
+                        <h:outputLabel value="Выберите X"/>
+                        <p:spinner value="#{plotBean.x}" min="-5" max="5" stepFactor="1" class="forChoose" id="x">
+                            <p:ajax event="change" 
+                                    listener="#{plotBean.updateX}" 
+                                    update="@form resultTable"
+                                    oncomplete="redrawCanvas()"/>
+                        </p:spinner>
+                        <h:inputHidden id="xHidden" value="#{plotBean.x}" converter="bigDecimalConverter"/>
+                        <h:outputLabel value="Выберите Y"/>
+                        <p:inputText id="y" value="#{plotBean.y}" converter="bigDecimalConverter" required="true"
+                        class="forChoose"/>
+                        <h:outputLabel value="Выберите R"/>
+                        <p:selectOneMenu value="#{plotBean.r}" class="forChoose" id="r">
+                            <f:selectItem itemLabel="1" itemValue="1"/>
+                            <f:selectItem itemLabel="2" itemValue="2"/>
+                            <f:selectItem itemLabel="3" itemValue="3"/>
+                            <f:selectItem itemLabel="4" itemValue="4"/>
+                            <f:selectItem itemLabel="5" itemValue="5"/>
+                            <p:ajax event="change" 
+                            listener="#{plotBean.clearResults}" 
+                            update="@form resultTable"
+                        oncomplete="redrawCanvas()"/>
+                        </p:selectOneMenu>
+                        <p:commandButton value="Проверить"
+                 action="#{plotBean.checkHit}" 
+                 update="@form resultTable"
+                 oncomplete="redrawCanvas(); smtLeft();" 
+                 id="submitBtn"/>
+                    </h:form>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" class="footer">Санкт-Петербург 2025</td>
+            </tr>
+        </table>
+        <script>
+            //<![CDATA[
+        const scale = 80,
+        sixCanv = 6,
+        twoCanv = 2,
+        zeroCanv = 0,
+        canvases = document.getElementsByTagName('canvas'),
+        canvas = canvases[zeroCanv],
+        ctx = canvas.getContext('2d'),
+        { height, width } = canvas,
+        centerX = width / twoCanv,
+        centerY = height / twoCanv;
+
+function redrawCanvas() {
+    ctx.clearRect(0, 0, width, height);
+    const rSelect = document.querySelector('[id$=":r"] .ui-selectonemenu-label');
+    let currentR = 1;
+    
+    if (rSelect && rSelect.textContent) {
+        const parsedR = parseFloat(rSelect.textContent);
+        if (!isNaN(parsedR)) {
+            currentR = parsedR;
+        }
+    }
+    
+    drawArea(ctx, centerX, centerY, scale, currentR);
+    drawAxes(ctx, width, height, centerX, centerY, scale);
+}
+
+function drawArea(ctx, cx, cy, scale, r) {
+    const unit = scale / 2;
+    ctx.fillStyle = 'rgba(51, 153, 255, 0.2)';
+    
+    // круг
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, (unit) * r, Math.PI/2, Math.PI, false);
+    ctx.fill();
+    
+    // прямоугольник
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + unit * r, cy);
+    ctx.lineTo(cx + unit * r, cy + (unit / 2) * r);
+    ctx.lineTo(cx, cy + (unit / 2) * r);
+    ctx.closePath();
+    ctx.fill();
+    
+    // треугольник  
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx, cy - (unit / 2) * r);
+    ctx.lineTo(cx + (unit / 2) * r, cy);
+    ctx.closePath();
+    ctx.fill();
+}
+function drawAxes(ctx, width, height, centerX, centerY, scale) {
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 1;
+    
+    // Оси
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(width, centerY);
+    ctx.moveTo(centerX, 0);
+    ctx.lineTo(centerX, height);
+    ctx.stroke();
+    
+    // Подписи
+    const sixCanv = 6;
+    ctx.font = "12px monospace";
+    for (let x = -5; x <= 5; x++) {
+        if (x === 0) continue;
+        const px = centerX + x * (scale / 2);
+        if (px >= 0 && px <= width) {
+            ctx.strokeText(x.toString(), px - 4, centerY + 15);
+        }
+    }
+    for (let y = -5; y <= 5; y++) {
+        if (y === 0) continue;
+        const py = centerY - y * (scale / 2);
+        if (py >= 0 && py <= height) {
+            ctx.strokeText(y.toString(), centerX + 6, py + 4);
+        }
+    }
+    ctx.strokeText("0", centerX + sixCanv, centerY - sixCanv);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('plotCanvas');
+    if (canvas) {
+        canvas.addEventListener('click', handleCanvasClick);
+    }
+});
+
+    function drawPoint(x, y, hit) {
+    const color = hit ? "green" : "red";
+    const unit = scale / 2;
+    
+    ctx.beginPath();
+    ctx.arc(centerX + x * unit, centerY - y * unit, 5, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+}
+   function smtLeft() {
+    const table = document.getElementById('resultTable');
+    if (!table) return;
+    
+    const rows = table.getElementsByTagName('tr');
+    if (rows.length < 2) return;
+    
+    redrawCanvas();
+    
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        if (cells.length >= 4) {
+            const x = parseFloat(cells[0].textContent.trim());
+            const y = parseFloat(cells[1].textContent.trim().replace(',', '.'));
+            const hit = cells[3].textContent.trim() === "Да";
+            
+            if (!isNaN(x) && !isNaN(y)) {
+                drawPoint(x, y, hit);
+            }
+        }
+    }
+}
+
+
+function handleCanvasClick(e) {  
+    const label = document.querySelector('[id$=":r"] .ui-selectonemenu-label');
+    const r = label ? parseFloat(label.textContent) : 1;
+    
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    
+    const unit = scale / 2;
+    const xClick = (clickX - centerX) / unit;
+    const yClick = (centerY - clickY) / unit;
+    console.log(xClick, yClick, r);
+    
+    const xInput = document.querySelector('[id$=":xHidden"]');
+    const yInput = document.querySelector('[id$=":y"]');
+    
+    if (xInput) {
+        xInput.value = xClick.toString().replace('.', ',');
+    }
+    if (yInput) {
+        yInput.value = yClick.toString().replace('.', ',');
+    }
+    
+    const submitBtn = document.querySelector('[id$=":submitBtn"]');
+    if (submitBtn) {
+        submitBtn.click();
+    }
+}
+    //]]>
+        </script>
+</h:body>
+</html>
