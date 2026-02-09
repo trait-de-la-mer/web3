@@ -5,6 +5,7 @@ import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 import ru.itmo.web.model.HitResult;
 
 import java.io.Serializable;
@@ -21,23 +22,17 @@ public class ResultBean implements Serializable {
     /**
      * Сохраняет результат в базу данных
      */
+    @Transactional
     public void saveResult(HitResult result) {
         try {
-            // Начинаем транзакцию
-            entityManager.getTransaction().begin();
-
-            // Сохраняем объект
+            // Просто сохраняем - транзакция управляется аннотацией @Transactional
             entityManager.persist(result);
 
-            // Фиксируем транзакцию
-            entityManager.getTransaction().commit();
+            // НЕ вызывайте flush() - он не нужен и может вызвать ошибку
+            // entityManager.flush();  // УДАЛИТЕ ЭТУ СТРОКУ!
 
             System.out.println("Результат сохранён: ID = " + result.getId());
         } catch (Exception e) {
-            // Откатываем транзакцию при ошибке
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
-            }
             e.printStackTrace();
             throw new RuntimeException("Ошибка сохранения данных в базу", e);
         }
@@ -62,15 +57,11 @@ public class ResultBean implements Serializable {
     /**
      * Очищает все результаты из базы данных
      */
+    @Transactional
     public void clearAllResults() {
         try {
-            entityManager.getTransaction().begin();
             entityManager.createQuery("DELETE FROM HitResult").executeUpdate();
-            entityManager.getTransaction().commit();
         } catch (Exception e) {
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
-            }
             throw new RuntimeException("Ошибка очистки базы данных", e);
         }
     }
