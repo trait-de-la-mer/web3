@@ -21,6 +21,8 @@ public class ResultBean implements Serializable {
     /**
      * Сохраняет результат в базу данных
      */
+
+    //sss
     public void saveResult(HitResult result) {
         try {
             // Начинаем транзакцию
