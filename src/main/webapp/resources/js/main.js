@@ -1,14 +1,3 @@
-const scale = 80,
-        sixCanv = 6,
-        twoCanv = 2,
-        zeroCanv = 0,
-        canvases = document.getElementsByTagName('canvas'),
-        canvas = canvases[zeroCanv],
-        ctx = canvas.getContext('2d'),
-        { height, width } = canvas,
-        centerX = width / twoCanv,
-        centerY = height / twoCanv;
-
 function redrawCanvas() {
     ctx.clearRect(0, 0, width, height);
     const rSelect = document.querySelector('[id$=":r"] .ui-selectonemenu-label');
@@ -23,6 +12,7 @@ function redrawCanvas() {
     
     drawArea(ctx, centerX, centerY, scale, currentR);
     drawAxes(ctx, width, height, centerX, centerY, scale);
+    smtLeft();
 }
 
 function drawArea(ctx, cx, cy, scale, r) {
@@ -83,14 +73,7 @@ function drawAxes(ctx, width, height, centerX, centerY, scale) {
     ctx.strokeText("0", centerX + sixCanv, centerY - sixCanv);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const canvas = document.getElementById('plotCanvas');
-    if (canvas) {
-        canvas.addEventListener('click', handleCanvasClick);
-    }
-});
-
-    function drawPoint(x, y, hit) {
+function drawPoint(x, y, hit) {
     const color = hit ? "green" : "red";
     const unit = scale / 2;
     
@@ -102,24 +85,25 @@ document.addEventListener('DOMContentLoaded', function() {
     ctx.lineWidth = 1;
     ctx.stroke();
 }
-   function smtLeft() {
+
+function smtLeft() { //TODO переименовать метод!!!!!!
     const table = document.getElementById('resultTable');
-    if (!table) return;
-    
+    if (!table) console.log("таблица с резами не найдена");
     const rows = table.getElementsByTagName('tr');
-    if (rows.length < 2) return;
-    
-    redrawCanvas();
-    
+    if (rows.length < 2) console.log("что-то не так с длинной таблицы с резами");
     for (let i = 1; i < rows.length; i++) {
         const cells = rows[i].getElementsByTagName('td');
-        if (cells.length >= 4) {
+        if (cells.length >= 4) {    
             const x = parseFloat(cells[0].textContent.trim());
             const y = parseFloat(cells[1].textContent.trim().replace(',', '.'));
+            const r = parseFloat(cells[2].textContent.trim());
             const hit = cells[3].textContent.trim() === "Да";
-            
             if (!isNaN(x) && !isNaN(y)) {
-                drawPoint(x, y, hit);
+                const label = document.querySelector('[id$=":r"] .ui-selectonemenu-label');
+                const nowR = label ? parseFloat(label.textContent) : 1;
+                if (nowR !== r){
+                    drawPoint(x * nowR / r, y * nowR / r, hit);
+                } else drawPoint(x, y, hit);
             }
         }
     }
@@ -129,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function handleCanvasClick(e) {  
     const label = document.querySelector('[id$=":r"] .ui-selectonemenu-label');
     const r = label ? parseFloat(label.textContent) : 1;
-    
+
     const rect = canvas.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
@@ -154,3 +138,22 @@ function handleCanvasClick(e) {
         submitBtn.click();
     }
 }
+
+
+const scale = 80,
+    sixCanv = 6,
+    twoCanv = 2,
+    zeroCanv = 0,
+    canvases = document.getElementsByTagName('canvas'),
+    canvas = canvases[zeroCanv],
+    ctx = canvas.getContext('2d'),
+    { height, width } = canvas,
+    centerX = width / twoCanv,
+    centerY = height / twoCanv;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('plotCanvas');
+    drawArea(ctx, centerX, centerY, scale, 1);
+    drawAxes(ctx, width, height, centerX, centerY, scale);
+    canvas.addEventListener('click', handleCanvasClick);
+});
