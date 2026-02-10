@@ -7,7 +7,7 @@
     <h:head>
         <title>Проверка попадания точки</title>
         <style>
-            html {
+html {
     background-color: #4a4a4a;
     color: white;
 }
@@ -50,18 +50,36 @@ td {
 }
 
  /* Выпадающий список */
-.forChoose.ui-selectonemenu .ui-selectonemenu-label {
+/* .forChoose.ui-selectonemenu .ui-selectonemenu-label {
     background: gray !important;
-    color: gray !important;
+    color: white !important;
     border: 2px solid green !important;
     border-radius: 8px 0 0 8px !important;
     padding: 8px !important;
-}
+} 
 
 .forChoose.ui-selectonemenu .ui-selectonemenu-trigger {
     background: gray !important;
     color: gray !important;
     border-radius: 0 8px 8px 0 !important;
+}*/
+
+/* Добавь эти стили */
+.forChoose.ui-selectonemenu .ui-selectonemenu-label {
+    color: white !important;
+    border: 2px solid green !important;
+}
+
+/* ЭТО ВАЖНО: стиль для элемента, который на самом деле показывает текст */
+.forChoose.ui-selectonemenu .ui-selectonemenu-label.ui-inputfield {
+    color: white !important;
+    border: 2px solid green !important;
+}
+
+/* Также убедись, что контейнер не имеет серого фона поверх текста */
+.forChoose.ui-selectonemenu {
+    background: transparent !important;
+    border: 2px solid green !important;
 }
 
 
