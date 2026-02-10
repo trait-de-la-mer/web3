@@ -20,6 +20,7 @@ function drawArea(ctx, cx, cy, scale, r) {
     ctx.fillStyle = 'rgba(51, 153, 255, 0.2)';
     
     // круг
+    ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, (unit) * r, Math.PI/2, Math.PI, false);
     ctx.fill();
@@ -70,6 +71,29 @@ function drawAxes(ctx, width, height, centerX, centerY, scale) {
             ctx.strokeText(y.toString(), centerX + 6, py + 4);
         }
     }
+
+    // Риски на осях
+    const tickLength = 6;
+    for (let x = -5; x <= 5; x++) {
+        if (x === 0) continue;
+        const px = centerX + x * (scale / 2);
+        if (px >= 0 && px <= width) {
+            ctx.beginPath();
+            ctx.moveTo(px, centerY - tickLength/2);
+            ctx.lineTo(px, centerY + tickLength/2);
+            ctx.stroke();
+        }
+    }
+    for (let y = -5; y <= 5; y++) {
+        if (y === 0) continue;
+        const py = centerY - y * (scale / 2);
+        if (py >= 0 && py <= height) {
+            ctx.beginPath();
+            ctx.moveTo(centerX - tickLength/2, py);
+            ctx.lineTo(centerX + tickLength/2, py);
+            ctx.stroke();
+        }
+    }
     ctx.strokeText("0", centerX + sixCanv, centerY - sixCanv);
 }
 
@@ -78,7 +102,7 @@ function drawPoint(x, y, hit) {
     const unit = scale / 2;
     
     ctx.beginPath();
-    ctx.arc(centerX + x * unit, centerY - y * unit, 5, 0, Math.PI * 2);
+    ctx.arc(centerX + x * unit, centerY - y * unit, 3.5, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
     ctx.strokeStyle = "black";
