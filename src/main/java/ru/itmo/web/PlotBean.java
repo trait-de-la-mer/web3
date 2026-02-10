@@ -50,17 +50,11 @@ public class PlotBean implements Serializable {
     }
 
     private boolean calculate(BigDecimal x, BigDecimal y, BigDecimal r) {
-        // Первая четверть
-        if (x.compareTo(BigDecimal.ZERO) > 0 && y.compareTo(BigDecimal.ZERO) > 0) {
-            return false;
-        }
-
-        if (x.compareTo(BigDecimal.ZERO) <= 0 && y.compareTo(BigDecimal.ZERO) >= 0) {
-            BigDecimal xSquared = x.multiply(x);
-            BigDecimal ySquared = y.multiply(y);
-            BigDecimal radius = r.divide(BigDecimal.valueOf(2));
-            BigDecimal radiusSquared = radius.multiply(radius);
-            return xSquared.add(ySquared).compareTo(radiusSquared) <= 0;
+        if ((x.compareTo(BigDecimal.ZERO) >= 0) && (y.compareTo(BigDecimal.ZERO) >= 0)){
+            //BigDecimal halfX = x.divide(BigDecimal.valueOf(2));
+            BigDecimal halfR = r.divide(BigDecimal.valueOf(2));
+            BigDecimal vir = x.negate().add(halfR);
+            return (y.compareTo(vir) <= 0);
         }
 
         if (x.compareTo(BigDecimal.ZERO) <= 0 && y.compareTo(BigDecimal.ZERO) <= 0) {
