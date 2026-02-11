@@ -19,17 +19,11 @@ public class ResultBean implements Serializable {
     @PersistenceContext(unitName = "hitResultsPU")
     private EntityManager entityManager;
 
-    /**
-     * Сохраняет результат в базу данных
-     */
     @Transactional
     public void saveResult(HitResult result) {
         try {
             // Просто сохраняем - транзакция управляется аннотацией @Transactional
             entityManager.persist(result);
-
-            // НЕ вызывайте flush() - он не нужен и может вызвать ошибку
-            // entityManager.flush();  // УДАЛИТЕ ЭТУ СТРОКУ!
 
             System.out.println("Результат сохранён: ID = " + result.getId());
         } catch (Exception e) {
@@ -54,9 +48,6 @@ public class ResultBean implements Serializable {
         }
     }
 
-    /**
-     * Очищает все результаты из базы данных
-     */
     @Transactional
     public void clearAllResults() {
         try {

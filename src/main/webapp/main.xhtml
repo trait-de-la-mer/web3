@@ -59,6 +59,12 @@ td {
     background: transparent !important;
 }
 
+#error {
+    color: #ff6b6b;
+    font-size: 0.85em;
+    margin-top: 4px;
+}
+
 
         </style>
     </h:head>
@@ -122,7 +128,7 @@ td {
                         <h:inputHidden id="xHidden" value="#{plotBean.x}" converter="bigDecimalConverter"/>
                         <h:outputLabel value="Выберите Y"/>
                         <p:inputText id="y" value="#{plotBean.y}" converter="bigDecimalConverter" required="true"
-                        class="forChoose"/>
+                        class="forChoose" type="number" step="any" min="-5" max="5"/>/>
                         <h:outputLabel value="Выберите R"/>
                         <p:selectOneMenu value="#{plotBean.r}" class="forChoose" id="r">
                             <f:selectItem itemLabel="1" itemValue="1"/>
@@ -138,6 +144,7 @@ td {
                  oncomplete="redrawCanvas()" 
                  id="submitBtn"/>
                     </h:form>
+                    <div id="error" hidden="true">sssss</div>
                 </td>
             </tr>
             <tr>

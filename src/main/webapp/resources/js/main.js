@@ -145,23 +145,56 @@ function handleCanvasClick(e) {
     const unit = scale / 2;
     const xClick = (clickX - centerX) / unit;
     const yClick = (centerY - clickY) / unit;
-    console.log(xClick, yClick, r);
     
     const xInput = document.querySelector('[id$=":xHidden"]');
     const yInput = document.querySelector('[id$=":y"]');
     
     if (xInput) {
-        xInput.value = xClick.toString().replace('.', ',');
+        xInput.value = xClick.toString();
     }
     if (yInput) {
-        yInput.value = yClick.toString().replace('.', ',');
+        yInput.value = yClick.toString();
     }
     
     const submitBtn = document.querySelector('[id$=":submitBtn"]');
     if (submitBtn) {
         submitBtn.click();
     }
+    let text = "";
+    let flag = false;
+    console.log(parseFloat(xInput.value))
+    console.log(parseFloat(yInput.value))
+    if (parseFloat(xInput.value) > 5 || parseFloat(xInput.value) < -5) {
+        text += "|x| < 5\n";
+        flag = true;
+        console.log(xInput.value);
+    };
+
+    if (parseFloat(yInput.value) > 5 || parseFloat(yInput.value) < -5) {
+        text += "|y| < 5"
+        flag = true;
+        console.log(yInput.value);
+    };
+    console.log(111111);
+    console.log(text);
+    if (flag){showClientError(text)};
 }
+
+function showClientError(text) {
+    const time = 3000;
+    var errorDiv = document.getElementById("error"); 
+    errorDiv.textContent = text;
+    errorDiv.hidden = false;
+    // Очищаем существующий таймер на элементе
+    if (errorDiv.timer) {
+        clearTimeout(errorDiv.timer);
+    }
+     // Сохраняем таймер на самом элементе
+    errorDiv.timer = setTimeout(() => {
+        errorDiv.hidden = true;
+        errorDiv.timer = null;
+    }, time);
+}  
 
 
 const scale = 80,

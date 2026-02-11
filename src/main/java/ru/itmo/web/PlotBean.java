@@ -51,7 +51,6 @@ public class PlotBean implements Serializable {
 
     private boolean calculate(BigDecimal x, BigDecimal y, BigDecimal r) {
         if ((x.compareTo(BigDecimal.ZERO) >= 0) && (y.compareTo(BigDecimal.ZERO) >= 0)){
-            //BigDecimal halfX = x.divide(BigDecimal.valueOf(2));
             BigDecimal halfR = r.divide(BigDecimal.valueOf(2));
             BigDecimal vir = x.negate().add(halfR);
             return (y.compareTo(vir) <= 0);
@@ -76,12 +75,7 @@ public class PlotBean implements Serializable {
         resultsBean.clearAllResults();
         resultModel.clear();
     }
-
-    /**
-     * Обновляет значение X (вызывается при изменении спиннера)
-     */
     public void updateX() {
-        // Можно добавить логику при необходимости
     }
 
     // Getters and Setters
