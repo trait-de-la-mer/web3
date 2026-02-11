@@ -185,16 +185,43 @@ function showClientError(text) {
     var errorDiv = document.getElementById("error"); 
     errorDiv.textContent = text;
     errorDiv.hidden = false;
-    // Очищаем существующий таймер на элементе
     if (errorDiv.timer) {
         clearTimeout(errorDiv.timer);
     }
-     // Сохраняем таймер на самом элементе
     errorDiv.timer = setTimeout(() => {
         errorDiv.hidden = true;
         errorDiv.timer = null;
     }, time);
 }  
+
+function validateForm() {
+    const xInput = document.querySelector('[id$=":xHidden"]');
+    const yInput = document.querySelector('[id$=":y"]');
+    
+    let text = "";
+    let flag = false;
+    
+    // Валидация X
+    const xVal = parseFloat(xInput?.value);
+    if (xInput && (isNaN(xVal) || xVal > 5 || xVal < -5)) {
+        text += "X должен быть от -5 до 5\n";
+        flag = true;
+    }
+    
+    // Валидация Y
+    const yVal = parseFloat(yInput?.value);
+    if (yInput && (isNaN(yVal) || yVal > 5 || yVal < -5)) {
+        text += "Y должен быть от -5 до 5";
+        flag = true;
+    }
+    
+    if (flag) {
+        showClientError(text);
+        return false; // Отменяет отправку формы
+    }
+    
+    return true; // Разрешает отправку
+}
 
 
 const scale = 80,

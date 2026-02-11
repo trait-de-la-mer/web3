@@ -141,7 +141,8 @@ td {
                         <p:commandButton value="Проверить"
                  action="#{plotBean.checkHit}" 
                  update="@form resultTable"
-                 oncomplete="redrawCanvas()" 
+                 oncomplete="redrawCanvas()"
+                 onclick="return validateForm()" 
                  id="submitBtn"/>
                     </h:form>
                     <div id="error" hidden="true">sssss</div>
