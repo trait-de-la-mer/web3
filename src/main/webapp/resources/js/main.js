@@ -201,14 +201,14 @@ function validateForm() {
     let text = "";
     let flag = false;
     
-    // Валидация X
+    // X
     const xVal = parseFloat(xInput?.value);
     if (xInput && (isNaN(xVal) || xVal > 5 || xVal < -5)) {
         text += "X должен быть от -5 до 5\n";
         flag = true;
     }
     
-    // Валидация Y
+    // Y
     const yVal = parseFloat(yInput?.value);
     if (yInput && (isNaN(yVal) || yVal > 5 || yVal < -5)) {
         text += "Y должен быть от -5 до 5";
@@ -217,10 +217,10 @@ function validateForm() {
     
     if (flag) {
         showClientError(text);
-        return false; // Отменяет отправку формы
+        return false;
     }
     
-    return true; // Разрешает отправку
+    return true;
 }
 
 function handleErrors(xhr, status, args){

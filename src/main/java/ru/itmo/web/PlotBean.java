@@ -44,7 +44,6 @@ public class PlotBean implements Serializable {
             BigDecimal rValue = new BigDecimal(r);
             try {
                 boolean hit = calculate(x, y, rValue);
-
                 HitResult result = new HitResult(x, y, r, hit);
                 resultsBean.saveResult(result);
                 resultModel.add(0, result);
@@ -62,10 +61,10 @@ public class PlotBean implements Serializable {
     private boolean calculate(BigDecimal x, BigDecimal y, BigDecimal r){
 
         if (x.compareTo(BigDecimal.valueOf(5)) > 0 || (x.compareTo(BigDecimal.valueOf(-5)) < 0)){
-            throw new RuntimeException("|x| < 5");
+            throw new RuntimeException("server: |x| <= 5");
         }
         if (y.compareTo(BigDecimal.valueOf(5)) > 0 || (y.compareTo(BigDecimal.valueOf(-5)) < 0)){
-            throw new RuntimeException("|y| < 5");
+            throw new RuntimeException("server: |y| <= 5");
         }
         if ((x.compareTo(BigDecimal.ZERO) >= 0) && (y.compareTo(BigDecimal.ZERO) >= 0)) {
             BigDecimal halfR = r.divide(BigDecimal.valueOf(2));
