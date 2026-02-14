@@ -1,3 +1,4 @@
+
     <!DOCTYPE html>
     <html xmlns="http://www.w3.org/1999/xhtml"
           xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -128,7 +129,7 @@ td {
                         <h:inputHidden id="xHidden" value="#{plotBean.x}" converter="bigDecimalConverter"/>
                         <h:outputLabel value="Выберите Y"/>
                         <p:inputText id="y" value="#{plotBean.y}" converter="bigDecimalConverter" required="true"
-                        class="forChoose" type="number" step="any" min="-5" max="5"/>/>
+                        class="forChoose" type="number" step="any" min="-5" max="5"/>
                         <h:outputLabel value="Выберите R"/>
                         <p:selectOneMenu value="#{plotBean.r}" class="forChoose" id="r">
                             <f:selectItem itemLabel="1" itemValue="1"/>
@@ -141,7 +142,7 @@ td {
                         <p:commandButton value="Проверить"
                  action="#{plotBean.checkHit}" 
                  update="@form resultTable"
-                 oncomplete="redrawCanvas()"
+                 oncomplete="handleErrors(xhr, status, args); redrawCanvas()"
                  onclick="return validateForm()" 
                  id="submitBtn"/>
                     </h:form>

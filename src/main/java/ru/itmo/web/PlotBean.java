@@ -2,8 +2,10 @@ package ru.itmo.web;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.primefaces.PrimeFaces;
 import ru.itmo.web.model.HitResult;
 
 import java.io.Serializable;
@@ -40,17 +42,32 @@ public class PlotBean implements Serializable {
     public void checkHit() {
         try {
             BigDecimal rValue = new BigDecimal(r);
-            boolean hit = calculate(x, y, rValue);
-            HitResult result = new HitResult(x, y, r, hit);
-            resultsBean.saveResult(result);
-            resultModel.add(0, result);
+            try {
+                boolean hit = calculate(x, y, rValue);
+
+                HitResult result = new HitResult(x, y, r, hit);
+                resultsBean.saveResult(result);
+                resultModel.add(0, result);
+                PrimeFaces.current().ajax().addCallbackParam("sucsess", true);
+            } catch (RuntimeException e){
+                PrimeFaces.current().ajax().addCallbackParam("validationFailed", true);
+                PrimeFaces.current().ajax().addCallbackParam("errorMessage", e.getMessage());
+            }
         } catch (Exception e) {
+            System.out.println(1111);
             e.printStackTrace();
         }
     }
 
-    private boolean calculate(BigDecimal x, BigDecimal y, BigDecimal r) {
-        if ((x.compareTo(BigDecimal.ZERO) >= 0) && (y.compareTo(BigDecimal.ZERO) >= 0)){
+    private boolean calculate(BigDecimal x, BigDecimal y, BigDecimal r){
+
+        if (x.compareTo(BigDecimal.valueOf(5)) > 0 || (x.compareTo(BigDecimal.valueOf(-5)) < 0)){
+            throw new RuntimeException("|x| < 5");
+        }
+        if (y.compareTo(BigDecimal.valueOf(5)) > 0 || (y.compareTo(BigDecimal.valueOf(-5)) < 0)){
+            throw new RuntimeException("|y| < 5");
+        }
+        if ((x.compareTo(BigDecimal.ZERO) >= 0) && (y.compareTo(BigDecimal.ZERO) >= 0)) {
             BigDecimal halfR = r.divide(BigDecimal.valueOf(2));
             BigDecimal vir = x.negate().add(halfR);
             return (y.compareTo(vir) <= 0);
@@ -67,7 +84,6 @@ public class PlotBean implements Serializable {
             BigDecimal halfR = r.divide(BigDecimal.valueOf(2));
             return x.compareTo(r) <= 0 && y.compareTo(halfR.negate()) >= 0;
         }
-
         return false;
     }
 

@@ -223,6 +223,14 @@ function validateForm() {
     return true; // Разрешает отправку
 }
 
+function handleErrors(xhr, status, args){
+    if (args.validationFailed) {
+        showClientError(args.errorMessage);
+    } else if (!args.sucsess){
+        showClientError("Непредвиденная ошибка на серваке")
+    }
+}
+
 
 const scale = 80,
     sixCanv = 6,
@@ -240,4 +248,5 @@ document.addEventListener('DOMContentLoaded', function() {
     drawArea(ctx, centerX, centerY, scale, 1);
     drawAxes(ctx, width, height, centerX, centerY, scale);
     canvas.addEventListener('click', handleCanvasClick);
+    smtLeft()
 });
