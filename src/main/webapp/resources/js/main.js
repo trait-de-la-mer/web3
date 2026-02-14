@@ -162,21 +162,6 @@ function handleCanvasClick(e) {
         submitBtn.click();
     }
     clickFlag = false
-//    if (parseFloat(xInput.value) > 5 || parseFloat(xInput.value) < -5) {
-//        text += "|x| < 5\n";
-//        flag = true;
-//        console.log(xInput.value);
-//    };
-//
-//    if (parseFloat(yInput.value) > 5 || parseFloat(yInput.value) < -5) {
-//        text += "|y| < 5"
-//        flag = true;
-//        console.log(yInput.value);
-//    };
-//    console.log(111111);
-//    console.log(text);
-//    if (flag){showClientError(text)};
-// вторая валидация тут чо-то делает
 }
 
 function showClientError(text) {
@@ -194,49 +179,57 @@ function showClientError(text) {
 }  
 
 function validateForm() {
-     const xInput = document.querySelector('[id$=":xHidden"]');
-     const yInput = document.querySelector('[id$=":y"]');
+    const xInput = document.querySelector('[id$=":xHidden"]');
+    const yInput = document.querySelector('[id$=":y"]');
+    console.log("bot tut ", yInput.value)
     
-     let text = "";
-     let flag = false;
+    let text = "";
+    let flag = false;
     
-     // X
-     const xVal = parseFloat(xInput?.value);
-     if (xInput && (isNaN(xVal) || xVal > 5 || xVal < -5)) {
-         text += "X должен быть от -5 до 5\n";
-         flag = true;
-     }
+    // X
+    const xVal = parseFloat(xInput?.value);
+    if (xInput && (isNaN(xVal) || xVal > 5 || xVal < -5)) {
+        text += "X должен быть от -5 до 5\n";
+        flag = true;
+    }
     
-     // Y
-     const yVal = parseFloat(yInput?.value);
-     if (yInput && (isNaN(yVal) || yVal > 5 || yVal < -5)) {
-         text += "Y должен быть от -5 до 5";
-         flag = true;
-     }
+    // Y
+    const yVal = parseFloat(yInput?.value);
+    if (yInput && (isNaN(yVal) || yVal > 5 || yVal < -5)) {
+        text += "Y должен быть от -5 до 5";
+        flag = true;
+    }
     
-     if (!clickFlag){resetBean()}
-     if (flag) {
-         showClientError(text);
-         return false;
-     }
+    if (!clickFlag){resetBean()}
+    if (flag) {
+        showClientError(text);
+        return false;
+    }
     
     return true;
 }
+
+
 function resetBean(){
     const spinnerInput = document.querySelector('[id$=":x"] input');
-    if (!spinnerInput) {
-        console.log("Поле ввода спиннера не найдено");
+    const yInput = document.querySelector('[id$=":y"]');
+    const hiddenX = document.querySelector('[id$=":xHidden"]');
+    
+    console.log("До синхронизации Y =", yInput.value);
+    
+    if (!spinnerInput || !hiddenX) {
+        console.log("Поля не найдены");
         return;
     }
-    const currentValue = spinnerInput.value;
-    console.log("Текущее значение spinner:", currentValue);
-    const changeEvent = new Event('change', { bubbles: true });
-    spinnerInput.dispatchEvent(changeEvent);
     
-    // // Дополнительно можно вызвать input событие для надежности
-    // const inputEvent = new Event('input', { bubbles: true });
-    // spinnerInput.dispatchEvent(inputEvent);
+    // Просто копируем значение из спиннера в скрытое поле
+    hiddenX.value = spinnerInput.value;
+    console.log("X синхронизирован:", spinnerInput.value);
+    console.log("После синхронизации Y =", yInput.value);
+    
+    // НЕ вызываем change событие, чтобы не триггерить обновление формы
 }
+
 function handleErrors(xhr, status, args){
     if (args.validationFailed) {
         showClientError(args.errorMessage);
@@ -256,7 +249,7 @@ const scale = 80,
     { height, width } = canvas,
     centerX = width / twoCanv,
     centerY = height / twoCanv;
-let clickFlag = false
+let clickFlag = false;
 document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.getElementById('plotCanvas');
     drawArea(ctx, centerX, centerY, scale, 1);
