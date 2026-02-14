@@ -5,7 +5,8 @@ import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import jakarta.transaction.Transactional;
+import jakarta.transaction.UserTransaction;
+import jakarta.annotation.Resource;
 import ru.itmo.web.model.HitResult;
 
 import java.io.Serializable;
@@ -19,22 +20,38 @@ public class ResultBean implements Serializable {
     @PersistenceContext(unitName = "hitResultsPU")
     private EntityManager entityManager;
 
-    @Transactional
+    @Resource
+    private UserTransaction userTransaction;
+
     public void saveResult(HitResult result) {
         try {
-            // Просто сохраняем - транзакция управляется аннотацией @Transactional
+            // Начинаем транзакцию вручную
+            userTransaction.begin();
+
+            // Сохраняем результат
             entityManager.persist(result);
 
-            System.out.println("Результат сохранён: ID = " + result.getId());
+            // Завершаем транзакцию
+            userTransaction.commit();
+
+            System.out.println("Результат сохранён успешно");
+
         } catch (Exception e) {
+            // В случае ошибки откатываем транзакцию
+            try {
+                if (userTransaction.getStatus() == jakarta.transaction.Status.STATUS_ACTIVE ||
+                        userTransaction.getStatus() == jakarta.transaction.Status.STATUS_MARKED_ROLLBACK) {
+                    userTransaction.rollback();
+                }
+            } catch (Exception rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+
             e.printStackTrace();
-            throw new RuntimeException("Ошибка сохранения данных в базу", e);
+            throw new RuntimeException("Ошибка сохранения данных в базу: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Загружает все результаты из базы данных
-     */
     public List<HitResult> getAllResults() {
         try {
             TypedQuery<HitResult> query = entityManager.createQuery(
@@ -48,12 +65,25 @@ public class ResultBean implements Serializable {
         }
     }
 
-    @Transactional
     public void clearAllResults() {
         try {
+            userTransaction.begin();
             entityManager.createQuery("DELETE FROM HitResult").executeUpdate();
+            userTransaction.commit();
+
+            System.out.println("Все результаты очищены");
+
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка очистки базы данных", e);
+            try {
+                if (userTransaction.getStatus() == jakarta.transaction.Status.STATUS_ACTIVE ||
+                        userTransaction.getStatus() == jakarta.transaction.Status.STATUS_MARKED_ROLLBACK) {
+                    userTransaction.rollback();
+                }
+            } catch (Exception rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+
+            throw new RuntimeException("Ошибка очистки базы данных: " + e.getMessage(), e);
         }
     }
 }
