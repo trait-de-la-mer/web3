@@ -71,7 +71,7 @@ public class ResultBean implements Serializable {
             entityManager.createQuery("DELETE FROM HitResult").executeUpdate();
             userTransaction.commit();
 
-            System.out.println("Все результаты очищены");
+            System.out.println("резы очищены");
 
         } catch (Exception e) {
             try {
@@ -83,7 +83,7 @@ public class ResultBean implements Serializable {
                 rollbackEx.printStackTrace();
             }
 
-            throw new RuntimeException("Ошибка очистки базы данных: " + e.getMessage(), e);
+            throw new RuntimeException("Ошибка очистки: " + e.getMessage(), e);
         }
     }
 }
