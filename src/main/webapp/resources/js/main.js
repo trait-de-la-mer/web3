@@ -248,5 +248,5 @@ document.addEventListener('DOMContentLoaded', function() {
     drawArea(ctx, centerX, centerY, scale, 1);
     drawAxes(ctx, width, height, centerX, centerY, scale);
     canvas.addEventListener('click', handleCanvasClick);
-    smtLeft()
+    setTimeout(smtLeft, 100);
 });
