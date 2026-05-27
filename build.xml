@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="lab3" default="build" basedir=".">
+
+    <property file="build.properties"/>
+
+    <!-- Classpath для компиляции (Jakarta EE + PrimeFaces) -->
+    <path id="compile.classpath">
+        <fileset dir="${lib.dir}" includes="*.jar" excludes="junit-4.13.2.jar,hamcrest-core-1.3.jar"/>
+    </path>
+
+    <!-- Classpath для тестов -->
+    <path id="test.classpath">
+        <pathelement location="${junit}"/>
+        <pathelement location="${hamcrest}"/>
+        <pathelement location="${classes.dir}"/>
+        <fileset dir="${lib.dir}" includes="*.jar" excludes="junit-4.13.2.jar,hamcrest-core-1.3.jar"/>
+    </path>
+
+    <!-- ========== CLEAN ========== -->
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${report.dir}"/>
+        <echo>Очистка завершена.</echo>
+    </target>
+
+    <!-- ========== COMPILE ========== -->
+    <target name="compile" depends="clean">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}"
+               classpathref="compile.classpath" includeantruntime="false"
+               encoding="UTF-8" source="17" target="17"/>
+        <copy todir="${classes.dir}">
+            <fileset dir="${resources.dir}"/>
+        </copy>
+        <echo>Компиляция завершена.</echo>
+    </target>
+
+    <!-- ========== BUILD (создаёт и JAR, и WAR) ========== -->
+    <target name="build" depends="compile">
+        <!-- Копируем веб-содержимое -->
+        <copy todir="${war.dir}">
+            <fileset dir="${web.dir}"/>
+        </copy>
+        <copy todir="${war.dir}/WEB-INF/classes">
+            <fileset dir="${classes.dir}"/>
+        </copy>
+        <copy todir="${war.dir}/WEB-INF/lib">
+            <fileset dir="${lib.dir}" includes="*.jar" excludes="junit-4.13.2.jar,hamcrest-core-1.3.jar"/>
+        </copy>
+
+        <!-- Создаём JAR (исполняемый, с манифестом) -->
+        <mkdir dir="${jar.dir}"/>
+        <manifest file="${build.dir}/MANIFEST.MF">
+            <attribute name="Manifest-Version" value="1.0"/>
+            <attribute name="Main-Class" value="NoClass"/>
+            <attribute name="Implementation-Version" value="${project.version}"/>
+        </manifest>
+        <jar destfile="${jar.dir}/${ant.project.name}.jar"
+             basedir="${classes.dir}"
+             manifest="${build.dir}/MANIFEST.MF"/>
+
+        <!-- Создаём WAR -->
+        <war destfile="${build.dir}/${ant.project.name}.war" webxml="${web.dir}/WEB-INF/web.xml">
+            <fileset dir="${war.dir}" includes="**/*"/>
+        </war>
+
+        <echo>JAR создан: ${jar.dir}/${ant.project.name}.jar</echo>
+        <echo>WAR создан: ${build.dir}/${ant.project.name}.war</echo>
+    </target>
+
+    <!-- ========== TEST ========== -->
+    <target name="test" depends="build">
+        <mkdir dir="${report.dir}"/>
+        <mkdir dir="${build.dir}/test-classes"/>
+        <javac destdir="${build.dir}/test-classes" srcdir="${test.dir}"
+               classpathref="test.classpath" includeantruntime="false"/>
+        <junit printsummary="yes" haltonfailure="no" fork="yes">
+            <classpath>
+                <path refid="test.classpath"/>
+                <pathelement location="${build.dir}/test-classes"/>
+            </classpath>
+            <batchtest todir="${report.dir}">
+                <formatter type="xml" usefile="true" extension=".xml"/>
+                <fileset dir="${test.dir}" includes="**/*Test.java"/>
+            </batchtest>
+        </junit>
+        <echo>Тестирование завершено. Отчёты в ${report.dir}</echo>
+    </target>
+
+    <!-- ========== NATIVE2ASCII ========== -->
+    <target name="native2ascii">
+        <mkdir dir="${native2ascii.dir}"/>
+        <native2ascii src="${resources.dir}" dest="${native2ascii.dir}"
+                      includes="**/*.properties" encoding="UTF-8"/>
+        <echo>Файлы локализации преобразованы в ${native2ascii.dir}</echo>
+    </target>
+
+    <!-- ========== REPORT ========== -->
+    <target name="report" depends="test">
+        <exec executable="svn" failonerror="false">
+            <arg line="add ${report.dir}/*.xml --force"/>
+        </exec>
+        <exec executable="svn" failonerror="true">
+            <arg line="commit ${report.dir} -m 'JUnit XML report from ${DSTAMP}'"/>
+        </exec>
+        <echo>Отчёты закоммичены в SVN.</echo>
+    </target>
+
+</project>
